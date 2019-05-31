@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>用户数据分析</title>
+  <style type="text/css">
+  *{
+    padding: 0;
+    margin: 0;
+  }
+  body,html{
+    color: #333;
+    font-family: SourceHanSansSC-Regular;
+    background: rgb(242,244,255);
+  }
+  div{
+    box-sizing: border-box;
+    cursor: default;
+  }
+  input{
+    box-sizing: border-box;
+    padding-left: .5rem;
+    border: none;
+    outline: none;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  
+  input[type="number"] {
+    -moz-appearance: textfield;
+
+  }
+  .infoTitle{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    background: rgb(242,244,255);
+    height: 40px;
+    
+  }
+  .infoTitle .line{
+    margin-left: 5px;
+    margin-right: 8px;
+    height: 30px;
+    width: 5px;
+    background: #ff5858;
+  }
+  .but{
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .page{
+    margin-top: 10px;
+    display:flex;
+    justify-content: flex-end;
+  }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>
