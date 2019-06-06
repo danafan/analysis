@@ -25,13 +25,13 @@
 					</el-form-item>
 					<el-form-item label="标签：">
 						<el-select clearable v-model="request.label" filterable placeholder="请选择">
-							<el-option v-for="item in labelList" :key="item.id" :label="item.label" :value="item.id">
+							<el-option v-for="(item,index) in labelList" :key="index" :label="item.tag_name" :value="item.tag_name">
 							</el-option>
 						</el-select>
 					</el-form-item>
 					<el-form-item label="店铺：">
 						<el-select clearable v-model="request.store" filterable placeholder="请选择">
-							<el-option v-for="item in shopList" :key="item.id" :label="item.label" :value="item.id">
+							<el-option v-for="item in shopList" :key="item.shop_id" :label="item.shop_name" :value="item.shop_id">
 							</el-option>
 						</el-select>
 					</el-form-item>
@@ -79,18 +79,17 @@
 	<el-dialog title="导出信息" :show-close="false" :visible.sync="dialogVisible" width="40%">
 		<div>
 			<el-checkbox-group v-model="checkList">
-				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="id">用户ID</el-checkbox>
-				<el-checkbox style="width: 25%" label="nickname">账号</el-checkbox>
-				<el-checkbox style="width: 25%" label="order_num">订单数</el-checkbox>
-				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="order_amount">订单总金额（元）</el-checkbox>
-				<el-checkbox style="width: 25%" label="last_data">上次下单时间</el-checkbox>
-				<el-checkbox style="width: 25%" label="address">最近下单地址</el-checkbox>
-				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="label">标签</el-checkbox>
+				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="nickname_column">用户昵称</el-checkbox>
+				<el-checkbox style="width: 25%" label="order_num_column">订单数</el-checkbox>
+				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="order_total_money_column">订单总金额（元）</el-checkbox>
+				<el-checkbox style="width: 25%" label="pay_date_column">上次下单时间</el-checkbox>
+				<el-checkbox style="width: 25%" label="address_column">最近下单地址</el-checkbox>
+				<el-checkbox style="width: 25%;margin-bottom: 10px;" label="label_column">标签</el-checkbox>
 			</el-checkbox-group>
 			<el-form :inline="true" size="small" class="demo-form-inline">
 				<el-form-item label="标签：">
 					<el-select v-model="label_id" filterable placeholder="请选择">
-						<el-option v-for="item in labelList" :key="item.id" :label="item.label" :value="item.id">
+						<el-option v-for="(item,index) in labelList" :key="index" :label="item.tag_name" :value="item.tag_name">
 						</el-option>
 					</el-select>
 				</el-form-item>
@@ -110,6 +109,7 @@
 	import resource from '../../../api/resource.js'
 	import axios from 'axios'
 	export default{
+		name:"userList",
 		data(){
 			return{
 				request:{
@@ -157,26 +157,8 @@
 				props:{
 					value:"label"
 				},
-				labelList:[
-				{
-					label:"标签1",
-					id:1
-				},
-				{
-					label:"标签2",
-					id:2
-				}
-				],						//标签列表
-				shopList:[
-				{
-					label:"店铺1",
-					id:1
-				},
-				{
-					label:"店铺2",
-					id:2
-				}
-				],						//店铺列表
+				labelList:[],			//标签列表
+				shopList:[],			//店铺列表
 				userList:[],			//用户列表
 				dialogVisible: false,	//默认导出列表不显示
 				checkList: [],			//选中的导出条件列表
@@ -187,6 +169,10 @@
 		created(){
 			//获取用户列表
 			this.getUserList();
+			//获取标签列表
+			this.getTags();
+			//获取店铺列表
+			this.getStore();
 		},
 		methods:{
 			//点击查询
@@ -245,6 +231,26 @@
 					})
 				}
 			},
+			//获取标签列表
+			getTags(){
+				resource.getTags().then(res => {
+					if(res.data.code == 1){
+						this.labelList = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
+			},
+			//获取店铺列表
+			getStore(){
+				resource.getStore().then(res => {
+					if(res.data.code == 1){
+						this.shopList = res.data.data.area;
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
+			},
 			//分页
 			handleSizeChange(val) {
 				this.size = val;
@@ -259,8 +265,35 @@
 			},
 			//点击导出
 			downLoad(){
-				console.log(this.checkList);
-				console.log(this.label_id);
+				let obj = {
+					nickname_column:false,
+					order_num_column:false,
+					order_total_money_column:false,
+					pay_date_column:false,
+					address_column:false,
+					label_column:false,
+					label:this.label_id
+				}
+				for (var key in obj) {
+					for (var i = 0; i < this.checkList.length; i++) {
+						if(key == this.checkList[i]){
+							obj[key] = true;
+						}
+					}
+				}
+				//预约导出
+				this.asyncExport(obj);
+			},
+			//预约导出
+			asyncExport(obj){
+				resource.asyncExport(obj).then(res => {
+					if(res.data.code == 1){
+						this.$message.success("已预约导出，注意查看消息列表");
+						this.dialogVisible = false;
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
 			},
 			//点击查看
 			look(row){

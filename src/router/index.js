@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 const login = resolve=>require(['@/components/Login/login'],resolve)
 const home = resolve=>require(['@/components/Home/home'],resolve)
+const message = resolve=>require(['@/components/Home/Message/message'],resolve)
 const index = resolve=>require(['@/components/Home/Index/index'],resolve)
 const userList = resolve=>require(['@/components/Home/UserList/userList'],resolve)
 const userInfo = resolve=>require(['@/components/Home/UserList/userInfo'],resolve)
@@ -26,6 +27,7 @@ const router = new Router({
     path: '/home',
     component: home,
     children:[
+    { path: '/message',name:"消息中心", component: message},
     { path: '/index',name:"首页", component: index},
     { path: '/userList',name:"用户列表", component: userList},
     { path: '/userInfo',name:"用户列表／用户信息", component: userInfo},

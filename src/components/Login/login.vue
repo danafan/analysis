@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<el-card class="cardBox">
-			<div class="title">用户分析</div>
+			<div class="title">数据分析系统</div>
 			<div class="loginForm">
-				<el-input class="input" v-model="phone" placeholder="请输入手机号" @keyup.enter.native="login"></el-input>
+				<el-input class="input" v-model="phone" placeholder="请输入用户名" @keyup.enter.native="login"></el-input>
 				<el-input class="input" type="password" v-model="password" placeholder="请输入密码" @keyup.enter.native="login"></el-input>
 				<div class="input">
 					<el-input v-model="code" placeholder="请输入验证码" @keyup.enter.native="login"></el-input>
@@ -66,11 +66,12 @@
 				password:"",
 				code:"",
 				remember:false,	
-				codeUrl:"http://store.52gxk.com/admin/admin/get_captcha",
+				codeUrl:"",
 				i:0
 			}
 		},
 		created(){
+			this.codeUrl = `${location.origin}/admin/login/captcha`;
 			let phone = localStorage.getItem('phone');
 			let password = localStorage.getItem('password');
 			if(phone && password){
@@ -81,12 +82,12 @@
 		methods:{
 			getCode(){
 				this.i += 1;
-				this.codeUrl = "http://store.52gxk.com/admin/admin/get_captcha?i=" + this.i;	
+				this.codeUrl = `${location.origin}/admin/login/captcha?i=${this.i}`;
 			},
 			//点击登录
 			login(){
 				if(this.phone == ''){
-					this.$message.warning("请输入手机号");
+					this.$message.warning("请输入用户名");
 				}else if(this.password == ''){
 					this.$message.warning("请输入密码");
 				}else if(this.code == ''){
@@ -100,12 +101,14 @@
 						localStorage.removeItem('password', this.password);
 					}
 					let obj = {
-						phone:this.phone,
+						admin_name:this.phone,
 						password:this.password,
 						captcha:this.code
 					}
 					resource.login(obj).then(res => {
-						if(res.data.code == '1'){
+						if(res.data.code == 1){
+							sessionStorage.setItem("admin_id",res.data.data.admin_id);	
+							sessionStorage.setItem("admin_name",res.data.data.admin_name);
 							this.$message.success("登录成功");
 							this.$router.push('/home');
 						}else{

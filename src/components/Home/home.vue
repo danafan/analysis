@@ -32,6 +32,10 @@
 							<el-menu-item index="/send">发送短信</el-menu-item>
 						</el-menu-item-group>
 					</el-submenu>
+					<el-menu-item index="/message">
+						<i class="el-icon-s-comment"></i>
+						<span slot="title">消息中心</span>
+					</el-menu-item>
 				</el-menu>
 			</el-aside>
 			<el-container>
@@ -41,14 +45,14 @@
 					</div>
 					<div class="headerRight">
 						<div class="service">
-							用户名称：<span>hahhah</span>
+							用户名称：<span>{{admin_name}}</span>
 						</div>
 						|
 						<el-button style="margin-left: 20px" type="info" size="mini" round @click="exit">退出</el-button>
 					</div>
 				</el-header>
 				<el-main>
-					<keep-alive>
+					<keep-alive include="userList">
 						<router-view></router-view>
 					</keep-alive>
 				</el-main>
@@ -103,12 +107,14 @@
 	export default{
 		data(){
 			return{
+				admin_name:"",
 				activeIndex:"",
 				levelList:[],
 				rou:""
 			}
 		},
 		created(){
+			this.admin_name = sessionStorage.getItem("admin_name");
 			//判断路由高亮
 			this.rous();
 			this.levelList = this.$route.matched.filter(item=>item.name);
@@ -144,10 +150,15 @@
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					this.$message({
-						type: 'success',
-						message: '退出'
-					}); 
+					resource.loginout().then(res => {
+						if(res.data.code == 1){
+							sessionStorage.clear();
+							this.$message.success(res.data.msg)
+							this.$router.push('/login');
+						}else{
+							this.$message.warning(res.data.msg)
+						}
+					})
 				}).catch(() => {
 					this.$message({
 						type: 'info',

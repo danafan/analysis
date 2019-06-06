@@ -1,21 +1,21 @@
 <template>
 	<div>
-		<el-card>
+		<el-card v-loading="loading">
 			<div class="infoTitle"><div class="line"></div>已有标签</div>
 			<div class="but">
 				<el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push('/send')">发送短信</el-button>
 				<el-button type="primary" icon="el-icon-plus" size="small" @click="$router.push('/addLabel')">新增标签</el-button>
 			</div>
 			<el-table :data="labelList" border style="width: 100%" align="center" :header-cell-style="{'background':'#f4f4f4'}">
-				<el-table-column prop="label_name" label="标签" align="center">
+				<el-table-column prop="tag_name" label="标签" align="center">
 				</el-table-column>
-				<el-table-column prop="user_num" label="该标签用户数量" align="center">
+				<el-table-column prop="doc_count" label="该标签用户数量" align="center">
 				</el-table-column>
-				<el-table-column prop="label_desc" label="标签含义" align="center" :show-overflow-tooltip="true" width="420">
+				<el-table-column prop="tag_descr" label="标签含义" align="center" :show-overflow-tooltip="true" width="420">
 				</el-table-column>
 				<el-table-column label="操作" align="center" >
 					<template slot-scope="scope">
-						<el-button type="text" @click="setting(scope.row)">{{scope.row.status == 1?'停用':'启用'}}</el-button>
+						<el-button type="text" @click="setting(scope.row)">{{scope.row.status == 2?'启用':'停用'}}</el-button>
 						<el-button type="text" @click="deleteLabel(scope.row)">删除</el-button>
 						<el-button type="text" @click="look(scope.row)">查看</el-button>
 					</template>
@@ -39,6 +39,7 @@
 
 </style>
 <script>
+	import resource from '../../../api/resource.js'
 	export default{
 		data(){
 			return{
@@ -46,39 +47,55 @@
 					pagesize:10,
 					page:1
 				},
-				labelList:[
-				{
-					label_name:"学生",
-					user_num:98000,
-					label_desc:"这行表现的是字数超出了怎么显示这行表现的是字数超出了怎么显示这行表现",
-					status:1
-				},
-				{
-					label_name:"南方、青年",
-					user_num:100000,
-					label_desc:"这行表现的是字数超出了怎么显示这行表现的是字数超出了怎么显示这行表现",
-					status:2
-				}
-				],
-				total:100,
+				labelList:[],				//标签列表
+				total:0,
+				loading:false
 			}
 		},
+		created(){
+			//获取标签列表
+			this.getTagList();
+		},
 		methods:{
+			//获取标签列表
+			getTagList(){
+				this.loading = true;
+				resource.getTagList(this.request).then(res => {
+					this.loading = false;
+					if(res.data.code == 1){
+						this.labelList = res.data.data.data;
+						this.total = res.data.data.total;
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
+			},
 			//分页
 			handleSizeChange(val) {
 				this.request.pagesize = val;
+				this.request.page = 1;
+				//获取标签列表
+				this.getTagList();
 			},
 			handleCurrentChange(val) {
 				this.request.page = val;
+				//获取标签列表
+				this.getTagList();
 			},
 			//操作
 			setting(row){
-				this.$confirm('确认停用?', '提示', {
+				let str = row.status == 1?"停":"启";
+				this.$confirm(`确认${str}用该标签?`, '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					console.log(row);
+					//标签操作
+					let obj = {
+						id:row.tag_id,
+						type:row.status == 1?2:1
+					}
+					this.settingTag(obj);
 				}).catch(() => {
 					this.$message({
 						type: 'info',
@@ -88,12 +105,17 @@
 			},
 			//删除
 			deleteLabel(row){
-				this.$confirm('确认删除?', '提示', {
+				this.$confirm('确认删除该标签?', '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					console.log(row);
+					//标签操作
+					let obj = {
+						id:row.tag_id,
+						type:3
+					}
+					this.settingTag(obj);
 				}).catch(() => {
 					this.$message({
 						type: 'info',
@@ -101,10 +123,23 @@
 					});          
 				});
 			},
+			//标签操作
+			settingTag(obj){
+				this.loading = true;
+				resource.settingTag(obj).then(res => {
+					this.loading = true;
+					if(res.data.code == 1){
+						this.$message.success("操作成功");
+						//获取标签列表
+						this.getTagList();
+					}else{
+						this.$message.waring(res.data.msg);
+					}
+				})
+			},
 			//查看
 			look(row){
-				console.log(row);
-				this.$router.push('/labelDetail');
+				this.$router.push('/labelDetail?id=' + row.tag_id);
 			}
 		}
 	}
