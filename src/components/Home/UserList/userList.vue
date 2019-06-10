@@ -21,7 +21,7 @@
 						<el-input v-model="request.nickname_or_id" placeholder="买家昵称或ID"></el-input>
 					</el-form-item>
 					<el-form-item label="地区：">
-						<el-cascader clearable v-model="addressList" :options="options" :props="props" ></el-cascader>
+						<el-cascader clearable v-model="addressList" :options="options" :props="props" change-on-select></el-cascader>
 					</el-form-item>
 					<el-form-item label="标签：">
 						<el-select clearable v-model="request.label" filterable placeholder="请选择">

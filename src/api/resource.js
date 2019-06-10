@@ -17,6 +17,7 @@ let path = {
 	stopKeyWord:"word/stoplist",									//关键词列表（已停用）
 	settigKeyWord:"word/edit",										//关键字操作
 	getTags:"tag/tags",												//获取所有标签
+	sendshortmessage:"message/sendshortmessage",					//预约发送短信
 }
 export default{
 	//验证是否登录
@@ -94,6 +95,10 @@ export default{
 	//获取所有标签
 	getTags(params){
 		return http.get(path.getTags, params)
+	},
+	//预约发送短信
+	sendshortmessage(params){
+		return http.post(path.sendshortmessage, params)
 	}
 }
 
